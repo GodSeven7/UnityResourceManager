@@ -1,2 +1,2 @@
-# HotUpdate
-A Easy HotUpdate
+# UnityResourceManager
+A Easy Unity Resource Managerment
