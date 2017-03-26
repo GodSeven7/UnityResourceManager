@@ -1,0 +1,35 @@
+ManifestFileVersion: 0
+CRC: 3902537060
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 558bb0fef688e00d5160213745e8987b
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 1a3a0d0a53fac59b5b71b8b6bc4845a8
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 65
+  Script: {instanceID: 0}
+- Class: 135
+  Script: {instanceID: 0}
+- Class: 136
+  Script: {instanceID: 0}
+Assets:
+- Assets/Resources/Sphere.prefab
+- Assets/Resources/Capsule.prefab
+- Assets/Resources/Cube.prefab
+Dependencies:
+- G:/github/UnityResourceManager/UnityResourceManager/Assets/AssetBundle/mat_ab
