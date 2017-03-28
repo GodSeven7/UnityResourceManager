@@ -21,3 +21,8 @@ A Easy Unity Resource Managerment
 2.代码结构还需要整理。
 3.还不支持路径配置。
 4.还不支持LoadAllAssets接口。
+
+---------------------------------------------------------------
+2017-3-29
+修改AssetBundleLoader的设计，改类只需要关注加载AssetBundle。
+去除ResourceManager类，改为ResAgent类提供接口，类似Unity自身的Resource类。
