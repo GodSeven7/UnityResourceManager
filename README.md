@@ -3,6 +3,11 @@ A Easy Unity Resource Managerment
 
 
 ---------------------------------------------------------------
+2017-3-29
+修改AssetBundleLoader的设计，改类只需要关注加载AssetBundle。
+去除ResourceManager类，改为ResAgent类提供接口，类似Unity自身的Resource类。
+
+---------------------------------------------------------------
 2017-3-26
 第一次上传Unity Resource ManagerMent模块，该模块主要宗旨是，用户不需要考虑资源的加载和卸载操作，只需要最简单的LoadAsset操作。
 
@@ -21,8 +26,3 @@ A Easy Unity Resource Managerment
 2.代码结构还需要整理。
 3.还不支持路径配置。
 4.还不支持LoadAllAssets接口。
-
----------------------------------------------------------------
-2017-3-29
-修改AssetBundleLoader的设计，改类只需要关注加载AssetBundle。
-去除ResourceManager类，改为ResAgent类提供接口，类似Unity自身的Resource类。
