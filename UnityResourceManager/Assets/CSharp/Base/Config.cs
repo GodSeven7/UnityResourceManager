@@ -3,11 +3,19 @@ using System.Collections;
 
 public class Config
 {
-    static int _loaderCount = -1;
+    static int _loadAsetBundleCount = -1;
 
-    public static int mLoaderCount
+    public static int mLoaderAssetBundleCount
     {
-        get { return _loaderCount; }
-        set { _loaderCount = value; }
+        get { return _loadAsetBundleCount; }
+        set { _loadAsetBundleCount = value; }
+    }
+
+    static int _loadPrefabCount = -1;
+
+    public static int mLoaderPrefabCount
+    {
+        get { return _loadPrefabCount; }
+        set { _loadPrefabCount = value; }
     }
 }

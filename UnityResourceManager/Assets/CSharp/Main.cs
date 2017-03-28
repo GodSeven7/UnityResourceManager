@@ -1,17 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections;
-using ResMgr;
 
 public class Main : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-	
+        ResAgent.LoadManifest();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-        ResourceManager.getInstance().Update();
 	}
 
     void OnGUI()
@@ -33,9 +31,7 @@ public class Main : MonoBehaviour {
 
     void LoadTestAsset()
     {
-        AssetBundleManager.getInstance().LoadManifest();
-
-        ResourceManager.getInstance().LoadAssetAsync("prefab_AB", "Cube", OnLoadCallBack1);
+        ResAgent.LoadAssetAsync("prefab_AB", "Cube", OnLoadCallBack1);
         //ResourceManager.getInstance().LoadAssetAsync("prefab_AB", "Sphere", OnLoadCallBack2);
         //ResourceManager.getInstance().LoadAssetAsync("prefab_AB", "Capsule", OnLoadCallBack3);
     }

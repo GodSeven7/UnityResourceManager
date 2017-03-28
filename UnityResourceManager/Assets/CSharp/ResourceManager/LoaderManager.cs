@@ -40,7 +40,8 @@ namespace ResMgr
         void ProcAssetWaitQueue()
         {
             int loadCount = _refAssetLoadList.Count;
-            while (loadCount < 5 && _refAssetWaitQueue.Count > 0)
+            int maxCount = ResAgent.mMaxLoadPrefabCount;
+            while ((maxCount <= -1 || loadCount < maxCount) && _refAssetWaitQueue.Count > 0)
             {
                 RefAsset ra = _refAssetWaitQueue.Dequeue();
                 if (_refAssetLoadList.Contains(ra) || _refAssetWaitQueue.Contains(ra))
