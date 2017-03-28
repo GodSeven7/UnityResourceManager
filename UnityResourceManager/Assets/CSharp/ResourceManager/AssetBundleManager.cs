@@ -34,7 +34,7 @@ namespace ResMgr
         {
             if (_manifestFile != null)
             {
-                return _manifestFile.GetAllDependencies(abName);
+                return _manifestFile.GetDirectDependencies(abName);
             }
 
             return null;
@@ -47,7 +47,7 @@ namespace ResMgr
             if (rab == null)
             {
                 rab = new RefAsstBundle(abName);
-                rab.InitDependence();
+                rab.InitDependenceRef();
                 _abDic.Add(abName, rab);
             }
             return rab;

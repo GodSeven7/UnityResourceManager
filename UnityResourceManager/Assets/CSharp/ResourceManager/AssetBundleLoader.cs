@@ -6,47 +6,41 @@ namespace ResMgr
 {
     public class AssetBundleLoader : Singleton<AssetBundleLoader>
     {
-        Queue<RefAsset> _refAssetQueue = new Queue<RefAsset>();
         List<RefAsstBundle> _refAssetBundleWaitList = new List<RefAsstBundle>();
         List<RefAsstBundle> _refAssetBundleLoadList = new List<RefAsstBundle>();
 
-        public void PreLoader(RefAsset refAsset)
+        public void PreLoader(RefAsstBundle refAssetBundle)
         {
-            _refAssetQueue.Enqueue(refAsset);
+            if (_refAssetBundleWaitList.Contains(refAssetBundle))
+                return;
+
+            if (_refAssetBundleLoadList.Contains(refAssetBundle))
+                return;
+
+            _refAssetBundleWaitList.Add(refAssetBundle);
         }
 
         public void Update()
         {
-            while(_refAssetQueue.Count > 0)
+            int loadCount = _refAssetBundleLoadList.Count;
+            while (loadCount < 5 && _refAssetBundleWaitList.Count > 0)
             {
-                RefAsset ra = _refAssetQueue.Dequeue();
-                RefAsstBundle rab = ra.mRefAB;
-                _refAssetBundleWaitList.Insert(0, rab);
+                RefAsstBundle rab = _refAssetBundleWaitList[0];
+                _refAssetBundleWaitList.RemoveAt(0);
+
                 rab.StartLoad();
+                _refAssetBundleLoadList.Add(rab);
 
-                List<RefAsstBundle> rabList = rab.GetDependenceRef();
-                IEnumerator it = rabList.GetEnumerator();
-                while(it.MoveNext())
-                {
-                    RefAsstBundle subRab = (RefAsstBundle)it.Current;
-                    if (_refAssetBundleWaitList.Contains(subRab))
-                        continue;
-
-                    if (_refAssetBundleLoadList.Contains(subRab))
-                        continue;
-
-                    _refAssetBundleWaitList.Insert(0, subRab);
-                    subRab.StartLoad();
-                }
+                loadCount++;
             }
 
-            int count = _refAssetBundleWaitList.Count;
+            int count = _refAssetBundleLoadList.Count;
             for (int i = count - 1; i >= 0; i--)
             {
-                RefAsstBundle rab = _refAssetBundleWaitList[i];
+                RefAsstBundle rab = _refAssetBundleLoadList[i];
                 if (rab.IsDone())
                 {
-                    _refAssetBundleWaitList.RemoveAt(i);
+                    _refAssetBundleLoadList.RemoveAt(i);
                 }
             }
         }

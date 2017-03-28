@@ -24,6 +24,7 @@ public class Main : MonoBehaviour {
         if(GUILayout.Button("GC"))
         {
             test1 = null;
+            test2 = null;
             Resources.UnloadUnusedAssets();
             System.GC.Collect();
         }
@@ -35,8 +36,8 @@ public class Main : MonoBehaviour {
         AssetBundleManager.getInstance().LoadManifest();
 
         ResourceManager.getInstance().LoadAssetAsync("prefab_AB", "Cube", OnLoadCallBack1);
-        ResourceManager.getInstance().LoadAssetAsync("prefab_AB", "Sphere", OnLoadCallBack2);
-        ResourceManager.getInstance().LoadAssetAsync("prefab_AB", "Capsule", OnLoadCallBack3);
+        //ResourceManager.getInstance().LoadAssetAsync("prefab_AB", "Sphere", OnLoadCallBack2);
+        //ResourceManager.getInstance().LoadAssetAsync("prefab_AB", "Capsule", OnLoadCallBack3);
     }
 
     void OnLoadCallBack1(RefAsset ra)
@@ -52,13 +53,13 @@ public class Main : MonoBehaviour {
     {
         Debug.Log("OnLoadCallBack2");
         test1 = ra.GetPrefabObject();
-        GameObject go = GameObject.Instantiate(test1) as GameObject;
+        GameObject.Instantiate(test1);
     }
 
     void OnLoadCallBack3(RefAsset ra)
     {
         Debug.Log("OnLoadCallBack3");
         test2 = ra.GetPrefabObject();
-        GameObject go = GameObject.Instantiate(test2) as GameObject;
+        GameObject.Instantiate(test2);
     }
 }

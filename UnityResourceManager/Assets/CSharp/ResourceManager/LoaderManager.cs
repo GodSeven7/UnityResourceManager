@@ -37,7 +37,7 @@ namespace ResMgr
             return ra;
         }
 
-        public void Update()
+        void ProcAssetWaitQueue()
         {
             int loadCount = _refAssetLoadList.Count;
             while (loadCount < 5 && _refAssetWaitQueue.Count > 0)
@@ -49,8 +49,10 @@ namespace ResMgr
                 _refAssetLoadList.Insert(0, ra);
                 loadCount++;
             }
+        }
 
-            //加载AssetBundle
+        void ProcAssetLoadList()
+        {
             int abCount = _refAssetLoadList.Count;
             for (int i = abCount - 1; i >= 0; i--)
             {
@@ -62,8 +64,10 @@ namespace ResMgr
                     _refPrefabLoadList.Insert(0, ra);
                 }
             }
+        }
 
-            //加载Prefab
+        void ProcPrefabLoadList()
+        {
             int prefabCount = _refPrefabLoadList.Count;
             for (int i = prefabCount - 1; i >= 0; i--)
             {
@@ -75,37 +79,53 @@ namespace ResMgr
                     _refCallbackQueue.Enqueue(ra);
                 }
             }
+        }
 
-            //加载完成回调
-            while(_refCallbackQueue.Count > 0)
+        void ProcCallBackQueue()
+        {
+            while (_refCallbackQueue.Count > 0)
             {
                 RefAsset ra = _refCallbackQueue.Dequeue();
                 ra.RunProc();
             }
+        }
 
-            //检查所有的refAsset引用, 删除不再使用的refAsset
+        void CheckAssetDic()
+        {
             List<string> tmpList = null;
             var iter = _refAssetDic.GetEnumerator();
-            while(iter.MoveNext())
+            while (iter.MoveNext())
             {
-                if(iter.Current.Value.TryDestroy())
+                if (iter.Current.Value.TryDestroy())
                 {
-                    if(tmpList == null)
+                    if (tmpList == null)
                         tmpList = new List<string>();
 
                     tmpList.Add(iter.Current.Key);
                 }
             }
 
-            if(tmpList != null)
+            if (tmpList != null)
             {
                 int count = tmpList.Count;
-                for(int i = 0; i < count; i++)
+                for (int i = 0; i < count; i++)
                 {
                     string key = tmpList[i];
                     _refAssetDic.Remove(key);
                 }
             }
+        }
+        public void Update()
+        {
+            ProcAssetWaitQueue();
+
+            ProcAssetLoadList();
+
+            ProcPrefabLoadList();
+
+            ProcCallBackQueue();
+
+            CheckAssetDic();
         }
     }
 }

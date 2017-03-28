@@ -18,21 +18,40 @@ namespace ResMgr
             _abName = abName;
         }
 
-        public void InitDependence()
+        public void InitDependenceRef()
         {
-            _rabList = new List<RefAsstBundle>();
-            string[] arr = AssetBundleManager.getInstance().GetDependence(_abName);
-            for (int i = 0; i < arr.Length; i++)
+            if (_rabList == null)
             {
-                string s = arr[i];
-                RefAsstBundle rab = AssetBundleManager.getInstance().TryGetAssetBundle(s);
-                _rabList.Add(rab);
+                _rabList = new List<RefAsstBundle>();
+                string[] arr = AssetBundleManager.getInstance().GetDependence(_abName);
+                for (int i = 0; i < arr.Length; i++)
+                {
+                    string s = arr[i];
+                    RefAsstBundle rab = AssetBundleManager.getInstance().TryGetAssetBundle(s);
+                    _rabList.Add(rab);
+
+                    rab.InitDependenceRef();
+                }
             }
         }
 
         public List<RefAsstBundle> GetDependenceRef()
         {
             return _rabList;
+        }
+
+        public void PreLoadAssetBundle()
+        {
+            if (_ab == null)
+                AssetBundleLoader.getInstance().PreLoader(this);
+
+            List<RefAsstBundle> rabList = this.GetDependenceRef();
+            IEnumerator it = rabList.GetEnumerator();
+            while (it.MoveNext())
+            {
+                RefAsstBundle subRab = (RefAsstBundle)it.Current;
+                subRab.PreLoadAssetBundle();
+            }
         }
 
         public void StartLoad()

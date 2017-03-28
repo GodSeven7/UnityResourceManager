@@ -74,7 +74,7 @@ namespace ResMgr
             {
                 case LoadProc.START:
                     _proc = LoadProc.LOADING_AB;
-                    AssetBundleLoader.getInstance().PreLoader(this);
+                    _rab.PreLoadAssetBundle();
                     break;
 
                 case LoadProc.LOADING_AB:
