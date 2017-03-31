@@ -23,10 +23,50 @@ public class ResAgent : MonoBehaviour {
         AssetBundleManager.getInstance().LoadManifest();
     }
 
+    public static RefAsset LoadAsset(string abName, string assetName)
+    {
+        if (!AssetBundleManager.getInstance().IsExsitAssetFile(abName))
+        {
+            Debug.LogError("Can't find assetbundle by name = " + abName);
+            return null;
+        }
+
+        //创建或找到RefAsset 放入待处理队列中
+        RefAsset ra = LoaderManager.getInstance().TryGetRefAsset(abName, assetName);
+        if (ra == null)
+        {
+            Debug.LogError(string.Format("Can't Create RefAsset abName = {0}, assetName = {1}", abName, assetName));
+            return null;
+        }
+
+        ra.StartLoadPrefab();
+
+        return ra;
+    }
+
+    public static RefAsset LoadAllAsset(string abName)
+    {
+        if (!AssetBundleManager.getInstance().IsExsitAssetFile(abName))
+        {
+            Debug.LogError("Can't find assetbundle by name = " + abName);
+            return null;
+        }
+
+        //创建或找到RefAsset 放入待处理队列中
+        RefAsset ra = LoaderManager.getInstance().TryGetRefAsset(abName, "");
+        if (ra == null)
+        {
+            Debug.LogError(string.Format("Can't Create RefAsset abName = {0}", abName));
+            return null;
+        }
+
+        ra.StartLoadAllAssets();
+
+        return ra;
+    }
+
     public static RefAsset LoadAssetAsync(string abName, string assetName, Action<RefAsset> funcCallBack = null)
     {
-        abName = abName.ToLower();
-        assetName = assetName.ToLower();
         if (!AssetBundleManager.getInstance().IsExsitAssetFile(abName))
         {
             Debug.LogError("Can't find assetbundle by name = " + abName);
@@ -46,6 +86,40 @@ public class ResAgent : MonoBehaviour {
         {
             ra.ResetProc();
             LoaderManager.getInstance().PreLoader(ra);
+        }
+        else if(ra.mProc == RefAsset.LoadProc.END)
+        {
+            ra.RunProc();
+        }
+
+        return ra;
+    }
+
+    public static RefAsset LoadAllAssetAsync(string abName, Action<RefAsset> funcCallBack = null)
+    {
+        if (!AssetBundleManager.getInstance().IsExsitAssetFile(abName))
+        {
+            Debug.LogError("Can't find assetbundle by name = " + abName);
+            return null;
+        }
+
+        //创建或找到RefAsset 放入待处理队列中
+        RefAsset ra = LoaderManager.getInstance().TryGetRefAsset(abName, "");
+        if (ra == null)
+        {
+            Debug.LogError(string.Format("Can't Create RefAsset abName = {0}", abName));
+            return null;
+        }
+        ra.SetCallBackFunc(funcCallBack);
+
+        if (ra.mProc == RefAsset.LoadProc.NONE)
+        {
+            ra.ResetProc();
+            LoaderManager.getInstance().PreLoader(ra);
+        }
+        else if (ra.mProc == RefAsset.LoadProc.END)
+        {
+            ra.RunProc();
         }
 
         return ra;

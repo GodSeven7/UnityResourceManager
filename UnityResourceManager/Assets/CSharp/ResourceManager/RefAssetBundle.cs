@@ -13,9 +13,18 @@ namespace ResMgr
         AssetBundleCreateRequest _abcr;
         List<RefAsstBundle> _rabList;
 
+        enum Status
+        {
+            UnLoaded,
+            Loading,
+            Loaded,
+        }
+        Status _status;
+
         public RefAsstBundle(string abName)
         {
             _abName = abName;
+            _status = Status.UnLoaded;
         }
 
         public void InitDependenceRef()
@@ -42,7 +51,7 @@ namespace ResMgr
 
         public void PreLoadAssetBundle()
         {
-            if (_ab == null)
+            if (_status == Status.UnLoaded)
                 AssetBundleLoader.getInstance().PreLoader(this);
 
             List<RefAsstBundle> rabList = this.GetDependenceRef();
@@ -54,15 +63,18 @@ namespace ResMgr
             }
         }
 
-        public void StartLoad()
+        public void StartLoadAsync()
         {
-            if (_ab == null && _abcr == null)
+            if (_status == Status.UnLoaded)
+            {
                 _abcr = AssetBundle.LoadFromFileAsync(Application.dataPath + "/AssetBundle/" + _abName);
+                _status = Status.Loading;
+            }
         }
 
         public bool IsDone()
         {
-            if (_ab != null)
+            if (_status == Status.Loaded)
                 return true;
 
             if (_abcr == null)
@@ -76,6 +88,7 @@ namespace ResMgr
                 //判断依赖项是否都已经ab完成
                 _ab = _abcr.assetBundle;
                 _abcr = null;
+                _status = Status.Loaded;
                 return true;
             }
 
@@ -99,9 +112,7 @@ namespace ResMgr
 
         public void IncreaseRef()
         {
-            _refCount++;
-
-            if (_rabList != null)
+            if (_rabList != null && _refCount == 0)
             {
                 IEnumerator iter = _rabList.GetEnumerator();
                 while (iter.MoveNext())
@@ -109,6 +120,8 @@ namespace ResMgr
                     ((RefAsstBundle)iter.Current).IncreaseRef();
                 }
             }
+
+            _refCount++;
         }
 
         public void DecreaseRef()
@@ -129,21 +142,73 @@ namespace ResMgr
                 _ab.Unload(true);
                 _ab = null;
                 Debug.Log(string.Format("Remove AssetBundle {0}", _abName));
-            }
 
-            if (_rabList != null)
-            {
-                IEnumerator iter = _rabList.GetEnumerator();
-                while (iter.MoveNext())
+                _status = Status.UnLoaded;
+
+                if (_rabList != null)
                 {
-                    ((RefAsstBundle)iter.Current).DecreaseRef();
+                    IEnumerator iter = _rabList.GetEnumerator();
+                    while (iter.MoveNext())
+                    {
+                        ((RefAsstBundle)iter.Current).DecreaseRef();
+                    }
                 }
             }
+
         }
 
-        public AssetBundleRequest LoadPrefabAynsc(string assetName)
+        public AssetBundleRequest LoadPrefabAsync(string assetName)
         {
             return _ab.LoadAssetAsync(assetName);
+        }
+
+        public AssetBundleRequest LoadAllAssetsAsync()
+        {
+            return _ab.LoadAllAssetsAsync();
+        }
+
+        //-----------------------------------同步操作-----------------------------------------------//
+        public void StartLoadSync()
+        {
+            if(_status != Status.Loaded)
+            {
+                _ab = AssetBundle.LoadFromFile(Application.dataPath + "/AssetBundle/" + _abName);
+                if(_ab == null)
+                {
+                    return;
+                }
+
+                if(_rabList.Count > 0)
+                {
+                    IEnumerator it = _rabList.GetEnumerator();
+                    while(it.MoveNext())
+                    {
+                        ((RefAsstBundle)it.Current).StartLoadSync();
+                    }
+                }
+            }
+
+            _status = Status.Loaded;
+        }
+
+        public UnityEngine.Object LoadPrefabSync(string assetName)
+        {
+            if (_ab == null)
+            {
+                return null;
+            }
+
+            return _ab.LoadAsset(assetName);
+        }
+
+        public UnityEngine.Object[] LoadAllAssetsSync()
+        {
+            if (_ab == null)
+            {
+                return null;
+            }
+
+            return _ab.LoadAllAssets();
         }
     }
 }

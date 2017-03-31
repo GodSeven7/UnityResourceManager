@@ -31,7 +31,9 @@ public class Main : MonoBehaviour {
 
     void LoadTestAsset()
     {
-        ResAgent.LoadAssetAsync("prefab_AB", "Cube", OnLoadCallBack1);
+        ResAgent.LoadAssetAsync("prefab_ab", "Cube", OnLoadCallBack1);
+        RefAsset ra = ResAgent.LoadAsset("prefab_ab", "Sphere");
+        ra.GetInstantiateObject();
         //ResourceManager.getInstance().LoadAssetAsync("prefab_AB", "Sphere", OnLoadCallBack2);
         //ResourceManager.getInstance().LoadAssetAsync("prefab_AB", "Capsule", OnLoadCallBack3);
     }

@@ -17,6 +17,7 @@ public class RefAsset
         PRELOAD_PREFAB,     //准备加载Prefab
         LOADING_PREFAB,     //正在加载Prefab
         FINISH_PREFAB,      //完成加载Prefab
+        END = FINISH_PREFAB,
     }
 
     string _abName;
@@ -26,10 +27,11 @@ public class RefAsset
     RefAsstBundle _rab;
     AssetBundleRequest _abr;
     UnityEngine.Object _prefabObject;
+    UnityEngine.Object[] _prefabAllObject;
     WeakReference _wr;
     int _refCount = -1;
     float _overTime;
-
+    bool isLoadAllAssets;
 
     public string mAbName
     {
@@ -51,6 +53,7 @@ public class RefAsset
         _assetName = assetName;
         _rab = rab;
         _proc = LoadProc.NONE;
+        isLoadAllAssets = string.IsNullOrEmpty(assetName);
 
         if (_rab != null)
         {
@@ -89,15 +92,30 @@ public class RefAsset
 
             case LoadProc.FINISH_AB:
                 _proc = LoadProc.LOADING_PREFAB;
-                _abr = _rab.LoadPrefabAynsc(_assetName);
+                if (isLoadAllAssets)
+                {
+                    _abr = _rab.LoadAllAssetsAsync();
+                }
+                else
+                {
+                    _abr = _rab.LoadPrefabAsync(_assetName);
+                }
                 break;
 
             case LoadProc.LOADING_PREFAB:
                 if (_abr != null && _abr.isDone)
                 {
                     _proc = LoadProc.FINISH_PREFAB;
-                    _prefabObject = _abr.asset;
-                    _wr = new WeakReference(_abr.asset);
+                    if (isLoadAllAssets)
+                    {
+                        _wr = new WeakReference(_abr.allAssets);
+                        _prefabAllObject = _wr.Target as UnityEngine.Object[];
+                    }
+                    else
+                    {
+                        _wr = new WeakReference(_abr.asset);
+                        _prefabObject = _wr.Target as UnityEngine.Object;
+                    }
                     _abr = null;
                 }
                 break;
@@ -177,9 +195,47 @@ public class RefAsset
             _wr = null;
             _prefabObject = null;
             _rab.DecreaseRef();
+            _proc = LoadProc.NONE;
             return true;
         }
 
         return false;
+    }
+
+    //-----------------------------------同步操作-----------------------------------------------//
+    public void StartLoadPrefab()
+    {
+        _rab.StartLoadSync();
+
+        if(_wr == null)
+        {
+            _wr = new WeakReference(_rab.LoadPrefabSync(_assetName));
+            _prefabObject = _wr.Target as UnityEngine.Object;
+        }
+
+        if (_proc != LoadProc.END)
+        {
+            DoCallBack();
+        }
+
+        _proc = LoadProc.END;
+    }
+
+    public void StartLoadAllAssets()
+    {
+        _rab.StartLoadSync();
+
+        if (_wr == null)
+        {
+            _wr = new WeakReference(_rab.LoadAllAssetsSync());
+            _prefabAllObject = _wr.Target as UnityEngine.Object[];
+        }
+
+        if(_proc != LoadProc.END)
+        {
+            DoCallBack();
+        }
+
+        _proc = LoadProc.END;
     }
 }

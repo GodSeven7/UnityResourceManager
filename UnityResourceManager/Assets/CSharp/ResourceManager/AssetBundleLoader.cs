@@ -29,7 +29,7 @@ namespace ResMgr
                 RefAsstBundle rab = _refAssetBundleWaitList[0];
                 _refAssetBundleWaitList.RemoveAt(0);
 
-                rab.StartLoad();
+                rab.StartLoadAsync();
                 _refAssetBundleLoadList.Add(rab);
 
                 loadCount++;
