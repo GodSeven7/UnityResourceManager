@@ -1,6 +1,11 @@
 # UnityResourceManager
 A Easy Unity Resource Managerment
 
+---------------------------------------------------------------
+2017-3-31
+增加同步加载的接口，LoadAssetSync和LoadAllAssetSync
+支持加载AllAssets的异步接口
+增加RefAssetBundle的状态枚举，Unloaded，Loading，Loaded
 
 ---------------------------------------------------------------
 2017-3-29
