@@ -24,6 +24,7 @@ namespace ResMgr
             _refAssetDic.TryGetValue(keyName, out ra);
             if(ra == null)
             {
+#if USE_AB
                 RefAsstBundle rab = AssetBundleManager.getInstance().TryGetAssetBundle(abName);
                 if (rab == null)
                 {
@@ -32,6 +33,9 @@ namespace ResMgr
                 }
 
                 ra = new RefAsset(abName, assetName, rab);
+#else
+                ra = new RefAsset(abName, assetName);
+#endif
                 _refAssetDic.Add(keyName, ra);
             }
             return ra;
@@ -46,8 +50,11 @@ namespace ResMgr
                 RefAsset ra = _refAssetWaitQueue.Dequeue();
                 if (_refAssetLoadList.Contains(ra) || _refAssetWaitQueue.Contains(ra))
                     continue;
-
+#if USE_AB
                 _refAssetLoadList.Insert(0, ra);
+#else
+                _refPrefabLoadList.Insert(0, ra);
+#endif
                 loadCount++;
             }
         }
@@ -119,14 +126,18 @@ namespace ResMgr
         public void Update()
         {
             ProcAssetWaitQueue();
-
+            
+#if USE_AB
             ProcAssetLoadList();
+#endif
 
             ProcPrefabLoadList();
 
             ProcCallBackQueue();
-
+            
+#if USE_AB
             CheckAssetDic();
+#endif
         }
     }
 }

@@ -5,7 +5,9 @@ public class Main : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+#if USE_AB
         ResAgent.LoadManifest();
+#endif
 	}
 	
 	// Update is called once per frame

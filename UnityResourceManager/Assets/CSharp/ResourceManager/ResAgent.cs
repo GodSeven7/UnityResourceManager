@@ -4,8 +4,6 @@ using System.Collections;
 using ResMgr;
 
 public class ResAgent : MonoBehaviour {
-    public static bool mIsAssetBundle = true;
-
     public static int mMaxLoadAssetBundleCount = -1;
 
     public static int mMaxLoadPrefabCount = -1;
@@ -15,21 +13,27 @@ public class ResAgent : MonoBehaviour {
     void Update()
     {
         LoaderManager.getInstance().Update();
+#if USE_AB
         AssetBundleLoader.getInstance().Update();
+#endif
 	}
 
+#if USE_AB
     public static void LoadManifest()
     {
         AssetBundleManager.getInstance().LoadManifest();
     }
+#endif
 
     public static RefAsset LoadAsset(string abName, string assetName)
     {
+#if USE_AB
         if (!AssetBundleManager.getInstance().IsExsitAssetFile(abName))
         {
             Debug.LogError("Can't find assetbundle by name = " + abName);
             return null;
         }
+#endif
 
         //创建或找到RefAsset 放入待处理队列中
         RefAsset ra = LoaderManager.getInstance().TryGetRefAsset(abName, assetName);
@@ -67,12 +71,13 @@ public class ResAgent : MonoBehaviour {
 
     public static RefAsset LoadAssetAsync(string abName, string assetName, Action<RefAsset> funcCallBack = null)
     {
+#if USE_AB
         if (!AssetBundleManager.getInstance().IsExsitAssetFile(abName))
         {
             Debug.LogError("Can't find assetbundle by name = " + abName);
             return null;
         }
-
+#endif
         //创建或找到RefAsset 放入待处理队列中
         RefAsset ra = LoaderManager.getInstance().TryGetRefAsset(abName, assetName);
         if (ra == null)
@@ -97,11 +102,13 @@ public class ResAgent : MonoBehaviour {
 
     public static RefAsset LoadAllAssetAsync(string abName, Action<RefAsset> funcCallBack = null)
     {
+#if USE_AB
         if (!AssetBundleManager.getInstance().IsExsitAssetFile(abName))
         {
             Debug.LogError("Can't find assetbundle by name = " + abName);
             return null;
         }
+#endif
 
         //创建或找到RefAsset 放入待处理队列中
         RefAsset ra = LoaderManager.getInstance().TryGetRefAsset(abName, "");

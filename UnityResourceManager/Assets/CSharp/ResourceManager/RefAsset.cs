@@ -24,14 +24,17 @@ public class RefAsset
     string _assetName;
     LoadProc _proc;
     Action<RefAsset> _callback;
-    RefAsstBundle _rab;
-    AssetBundleRequest _abr;
+    int _refCount = -1;
+
+#if USE_AB
+    float _overTime;
     UnityEngine.Object _prefabObject;
     UnityEngine.Object[] _prefabAllObject;
     WeakReference _wr;
-    int _refCount = -1;
-    float _overTime;
+    RefAsstBundle _rab;
+    AssetBundleRequest _abr;
     bool isLoadAllAssets;
+#endif
 
     public string mAbName
     {
@@ -42,11 +45,21 @@ public class RefAsset
     {
         get { return _proc; }
     }
+#if USE_AB
     public RefAsstBundle mRefAB
     {
         get { return _rab; }
     }
+#endif
 
+#if !USE_AB
+    public RefAsset(string abName, string assetName)
+    {
+        _abName = abName;
+        _assetName = assetName;
+        _proc = LoadProc.NONE;
+    }
+#else
     public RefAsset(string abName, string assetName, RefAsstBundle rab)
     {
         _abName = abName;
@@ -62,7 +75,7 @@ public class RefAsset
 
         _overTime = UnityEngine.Time.realtimeSinceStartup;
     }
-
+#endif
     public void SetCallBackFunc(Action<RefAsset> funcCallBack)
     {
         _callback += funcCallBack;
@@ -79,6 +92,9 @@ public class RefAsset
         switch (_proc)
         {
             case LoadProc.START:
+#if !USE_AB
+                _proc = LoadProc.FINISH_PREFAB;
+#else
                 _proc = LoadProc.LOADING_AB;
                 _rab.PreLoadAssetBundle();
                 break;
@@ -118,6 +134,7 @@ public class RefAsset
                     }
                     _abr = null;
                 }
+#endif
                 break;
 
             case LoadProc.FINISH_PREFAB:
@@ -134,12 +151,16 @@ public class RefAsset
             _callback(this);
             _callback = null;
         }
-
+#if USE_AB
         _overTime = UnityEngine.Time.realtimeSinceStartup;
+#endif
     }
 
     public UnityEngine.Object GetPrefabObject()
     {
+#if !USE_AB
+        return Resources.Load(_assetName);
+#else
         if (_wr == null)
         {
             Debug.LogError(string.Format("Can't found weakreference, abName = {0}, assetName = {1}", _abName, _assetName));
@@ -148,10 +169,37 @@ public class RefAsset
 
         _prefabObject = null;
         return _wr.Target as UnityEngine.Object;
+#endif
+    }
+
+    public UnityEngine.Object[] GetAllAssetsObject()
+    {
+#if !USE_AB
+        return Resources.LoadAll(_abName);
+#else
+        if (_wr == null)
+        {
+            Debug.LogError(string.Format("Can't found weakreference, abName = {0}", _abName));
+            return null;
+        }
+
+        
+        _prefabAllObject= null;
+        return _wr.Target as UnityEngine.Object[];
+#endif
     }
 
     public UnityEngine.Object GetInstantiateObject()
-    {
+    {        
+#if !USE_AB
+        UnityEngine.Object o = Resources.Load(_assetName);
+        if( o != null )
+        {
+            GameObject go = GameObject.Instantiate(o) as GameObject;
+            return go;
+        }
+        return null;
+#else
         if (_wr.Target != null)
         {
             GameObject go = GameObject.Instantiate(_wr.Target as UnityEngine.Object) as GameObject;
@@ -163,8 +211,9 @@ public class RefAsset
 
         Debug.LogError(string.Format("Can't found weakreference, abName = {0}, assetName = {1}", _abName, _assetName));
         return null;
+#endif
     }
-
+    
     void IncreaseRef()
     {
         if (_refCount == -1)
@@ -185,6 +234,7 @@ public class RefAsset
 
     public bool TryDestroy()
     {
+#if USE_AB
         if (_refCount > 0)
             return false;
 
@@ -198,13 +248,16 @@ public class RefAsset
             _proc = LoadProc.NONE;
             return true;
         }
-
+#endif
         return false;
     }
 
     //-----------------------------------同步操作-----------------------------------------------//
     public void StartLoadPrefab()
     {
+#if !USE_AB        
+        return;
+#else
         _rab.StartLoadSync();
 
         if(_wr == null)
@@ -219,10 +272,15 @@ public class RefAsset
         }
 
         _proc = LoadProc.END;
+
+#endif
     }
 
     public void StartLoadAllAssets()
     {
+#if !USE_AB
+        return;
+#else
         _rab.StartLoadSync();
 
         if (_wr == null)
@@ -237,5 +295,6 @@ public class RefAsset
         }
 
         _proc = LoadProc.END;
+#endif
     }
 }
