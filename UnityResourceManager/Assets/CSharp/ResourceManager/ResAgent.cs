@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using ResMgr;
 
 public class ResAgent : MonoBehaviour {
@@ -130,5 +131,16 @@ public class ResAgent : MonoBehaviour {
         }
 
         return ra;
+    }
+
+    public static void ForceClearMemory()
+    {
+        LoaderManager.getInstance().ForceClearMemory();
+    }
+
+    //----------------------------查看资源使用情况-----------------------------------//
+    public static List<ResourceStatus> ShowResourceStatus()
+    {
+        return LoaderManager.getInstance().GetResourcesStatus();
     }
 }

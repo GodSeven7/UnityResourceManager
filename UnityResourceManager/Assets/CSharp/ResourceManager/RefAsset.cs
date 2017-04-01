@@ -40,6 +40,14 @@ public class RefAsset
     {
         get { return _abName; }
     }
+    public string mAssetName
+    {
+        get { return _assetName; }
+    }
+    public int mRefCount
+    {
+        get { return _refCount; }
+    }
 
     public LoadProc mProc
     {
@@ -138,7 +146,7 @@ public class RefAsset
                 break;
 
             case LoadProc.FINISH_PREFAB:
-                _proc = LoadProc.NONE;
+                _proc = LoadProc.END;
                 DoCallBack();
                 break;
         }
@@ -184,7 +192,7 @@ public class RefAsset
         }
 
         
-        _prefabAllObject= null;
+        _prefabAllObject = null;
         return _wr.Target as UnityEngine.Object[];
 #endif
     }
@@ -232,15 +240,15 @@ public class RefAsset
         }
     }
 
-    public bool TryDestroy()
+    public bool TryDestroy(bool bForce = false)
     {
 #if USE_AB
-        if (_refCount > 0)
+        if (_refCount > 0 || _proc != LoadProc.END)
             return false;
 
         if ((_refCount == 0) ||
             (_wr != null && _wr.Target == null) ||
-            (_refCount == -1 && _prefabObject != null && UnityEngine.Time.realtimeSinceStartup - _overTime > ResAgent.mAutoGCTime))
+            (_refCount == -1 && _prefabObject != null && (bForce || UnityEngine.Time.realtimeSinceStartup - _overTime > ResAgent.mAutoGCTime)))
         {
             _wr = null;
             _prefabObject = null;

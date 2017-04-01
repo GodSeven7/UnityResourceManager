@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Main : MonoBehaviour {
 
@@ -14,6 +15,8 @@ public class Main : MonoBehaviour {
 	void Update () {
 	}
 
+    List<ResourceStatus> list;
+
     void OnGUI()
     {
         //测试代码
@@ -25,8 +28,28 @@ public class Main : MonoBehaviour {
         {
             test1 = null;
             test2 = null;
+            ResAgent.ForceClearMemory();
             Resources.UnloadUnusedAssets();
             System.GC.Collect();
+        }
+        if(GUILayout.Button("ShowStatus"))
+        {
+            list = ResAgent.ShowResourceStatus();
+        }
+
+        if(list != null)
+        {
+            if(list.Count > 0)
+            {
+                GUILayout.Label(string.Format("{0} \t {1} \t {2} \t {3}", "abName", "assetName", "refCount", "proc"));
+                var it = list.GetEnumerator();
+                while(it.MoveNext())
+                {
+                    string s = string.Format("{0} \t {1} \t {2} \t {3}", it.Current.abName, it.Current.assetName, it.Current.refCount, it.Current.proc);
+                    GUILayout.Label(s);
+
+                }
+            }
         }
     }
 

@@ -12,6 +12,9 @@ namespace ResMgr
         List<RefAsset> _refPrefabLoadList = new List<RefAsset>();
         Queue<RefAsset> _refCallbackQueue = new Queue<RefAsset>();
 
+        List<ResourceStatus> _rsList = new List<ResourceStatus>();
+        float lastClearTime = 0f;
+
         public void PreLoader(RefAsset refAsset)
         {
             _refAssetWaitQueue.Enqueue(refAsset);
@@ -98,8 +101,14 @@ namespace ResMgr
             }
         }
 
-        void CheckAssetDic()
+        void CheckAssetDic(bool bForce = false)
         {
+            if(!bForce)
+            {
+                if ((UnityEngine.Time.realtimeSinceStartup - lastClearTime < ResAgent.mAutoGCTime))
+                    return;
+            }
+
             List<string> tmpList = null;
             var iter = _refAssetDic.GetEnumerator();
             while (iter.MoveNext())
@@ -122,7 +131,15 @@ namespace ResMgr
                     _refAssetDic.Remove(key);
                 }
             }
+
+            lastClearTime = UnityEngine.Time.realtimeSinceStartup;
         }
+
+        public void ForceClearMemory()
+        {
+            CheckAssetDic(true);
+        }
+
         public void Update()
         {
             ProcAssetWaitQueue();
@@ -138,6 +155,24 @@ namespace ResMgr
 #if USE_AB
             CheckAssetDic();
 #endif
+        }
+
+        public List<ResourceStatus> GetResourcesStatus()
+        {
+            _rsList.Clear();
+
+            var it = _refAssetDic.GetEnumerator();
+            while(it.MoveNext())
+            {
+                RefAsset ra = it.Current.Value as RefAsset;
+                if(ra != null)
+                {
+                    ResourceStatus rs = new ResourceStatus(ra.mAbName, ra.mAssetName, ra.mRefCount, ra.mProc.ToString());
+                    _rsList.Add(rs);
+                }
+            }
+
+            return _rsList;
         }
     }
 }
