@@ -2,10 +2,16 @@
 A Easy Unity Resource Managerment
 
 ---------------------------------------------------------------
+2017-4-1
+增加支持Resource.Load功能，通过宏USE_AB来禁用Resource.Load功能，保证资源加载使用同一个接口完成。
+增加查看当前内存中RefAsset的使用情况接口。
+增加ForceClearMemory接口，在内存紧张时可以立即释放可以卸载的资源。
+
+---------------------------------------------------------------
 2017-3-31
-增加同步加载的接口，LoadAssetSync和LoadAllAssetSync
-支持加载AllAssets的异步接口
-增加RefAssetBundle的状态枚举，Unloaded，Loading，Loaded
+增加同步加载的接口，LoadAssetSync和LoadAllAssetSync。
+支持加载AllAssets的异步接口。
+增加RefAssetBundle的状态枚举，Unloaded，Loading，Loaded。
 
 ---------------------------------------------------------------
 2017-3-29
